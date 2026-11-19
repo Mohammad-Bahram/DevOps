@@ -1,39 +1,85 @@
 
-# Environment variables and secrets
+# ==========================================
+# Environment and secrets
+# ==========================================
 .env
 .env.*
 !.env.example
 
-# Private keys
-*.key
-
-# Certificate authority private data
+# ==========================================
+# Certificate Authority
+# ==========================================
+certs/ca/ca.key
+certs/ca/ca.crt
 certs/ca/ca.srl
 
-# Certificate signing requests
-*.csr
+# ==========================================
+# Generated broker private keys
+# ==========================================
+certs/kafka-*.key
 
-# PKCS12 keystores and truststores
-*.p12
-*.pfx
-*.jks
+# ==========================================
+# Generated broker certificates
+# ==========================================
+certs/kafka-*.crt
+certs/kafka-*.csr
+certs/kafka-*.ext
 
-# Broker credentials and JAAS configuration
+# ==========================================
+# Generated client certificates
+# ==========================================
+certs/client/ca.crt
+
+# ==========================================
+# Generated broker certificate directories
+# ==========================================
+kafka-1/certs/
+kafka-2/certs/
+
+# ==========================================
+# Generated broker secrets
+# ==========================================
 kafka-1/secrets/
 kafka-2/secrets/
 
-# Python cache
-__pycache__/
-*.py[cod]
-*.pyo
+# ==========================================
+# Keystores and truststores
+# ==========================================
+*.p12
+*.pfx
+*.jks
+*.keystore
+*.truststore
 
-# Virtual environments
-venv/
-.venv/
+# ==========================================
+# JAAS configurations
+# ==========================================
+*.jaas
+broker_jaas.conf
 
-# Logs
-*.log
+# ==========================================
+# Password and credential files
+# ==========================================
+*-password
+*.secret
+*.credentials
 
+# ==========================================
+# Generated runtime data
+# ==========================================
+data/
+logs/
+
+# ==========================================
+# Temporary files
+# ==========================================
+*.tmp
+*.bak
+*.swp
+*~
+
+# ==========================================
 # OS files
+# ==========================================
 .DS_Store
 Thumbs.db
