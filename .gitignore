@@ -1,0 +1,39 @@
+
+# Environment variables and secrets
+.env
+.env.*
+!.env.example
+
+# Private keys
+*.key
+
+# Certificate authority private data
+certs/ca/ca.srl
+
+# Certificate signing requests
+*.csr
+
+# PKCS12 keystores and truststores
+*.p12
+*.pfx
+*.jks
+
+# Broker credentials and JAAS configuration
+kafka-1/secrets/
+kafka-2/secrets/
+
+# Python cache
+__pycache__/
+*.py[cod]
+*.pyo
+
+# Virtual environments
+venv/
+.venv/
+
+# Logs
+*.log
+
+# OS files
+.DS_Store
+Thumbs.db

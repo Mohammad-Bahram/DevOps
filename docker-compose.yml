@@ -1,0 +1,135 @@
+
+services:
+  kafka-1:
+    image: apache/kafka:3.9.1
+    hostname: kafka-1
+    container_name: kafka-1
+
+    environment:
+      KAFKA_NODE_ID: 1
+      KAFKA_PROCESS_ROLES: broker,controller
+
+      KAFKA_CONTROLLER_QUORUM_VOTERS: 1@kafka-1:9093,2@kafka-2:9093
+      KAFKA_CONTROLLER_LISTENER_NAMES: CONTROLLER
+
+      KAFKA_LISTENERS: SASL_SSL://:9092,CONTROLLER://:9093
+      KAFKA_ADVERTISED_LISTENERS: SASL_SSL://kafka-1:9092
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: CONTROLLER:PLAINTEXT,SASL_SSL:SASL_SSL
+      KAFKA_INTER_BROKER_LISTENER_NAME: SASL_SSL
+
+      KAFKA_SSL_KEYSTORE_FILENAME: kafka-1.p12
+      KAFKA_SSL_KEYSTORE_CREDENTIALS: keystore-password
+      KAFKA_SSL_KEY_CREDENTIALS: key-password
+      KAFKA_SSL_CLIENT_AUTH: none
+
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 2
+
+      CLUSTER_ID: MkU3OEVBNTcwNTJENDM2Qk
+      KAFKA_SSL_TRUSTSTORE_TYPE: PKCS12
+      KAFKA_SSL_TRUSTSTORE_LOCATION: /etc/kafka/secrets/truststore.p12
+      KAFKA_SSL_TRUSTSTORE_PASSWORD: ${KEYSTORE_PASSWORD:?KEYSTORE_PASSWORD is required}
+      KAFKA_SASL_ENABLED_MECHANISMS: PLAIN
+      KAFKA_SASL_MECHANISM_INTER_BROKER_PROTOCOL: PLAIN
+      KAFKA_OPTS: -Djava.security.auth.login.config=/etc/kafka/secrets/broker_jaas.conf
+
+    ports:
+      - "19092:9092"
+
+    volumes:
+      - kafka1-data:/var/lib/kafka/data
+      - ./kafka-1/secrets/broker_jaas.conf:/etc/kafka/secrets/broker_jaas.conf:ro
+      - ./kafka-1/certs/kafka-1.p12:/etc/kafka/secrets/kafka-1.p12:ro
+      - ./kafka-1/secrets/keystore-password:/etc/kafka/secrets/keystore-password:ro
+      - ./kafka-1/secrets/key-password:/etc/kafka/secrets/key-password:ro
+      - ./kafka-1/certs/truststore.p12:/etc/kafka/secrets/truststore.p12:ro
+
+    networks:
+      - kafka-net
+
+  kafka-2:
+    image: apache/kafka:3.9.1
+    hostname: kafka-2
+    container_name: kafka-2
+
+    environment:
+      KAFKA_NODE_ID: 2
+      KAFKA_PROCESS_ROLES: broker,controller
+
+      KAFKA_CONTROLLER_QUORUM_VOTERS: 1@kafka-1:9093,2@kafka-2:9093
+      KAFKA_CONTROLLER_LISTENER_NAMES: CONTROLLER
+
+      KAFKA_LISTENERS: SASL_SSL://:9092,CONTROLLER://:9093
+      KAFKA_ADVERTISED_LISTENERS: SASL_SSL://kafka-2:9092
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: CONTROLLER:PLAINTEXT,SASL_SSL:SASL_SSL
+      KAFKA_INTER_BROKER_LISTENER_NAME: SASL_SSL
+
+      KAFKA_SSL_KEYSTORE_FILENAME: kafka-2.p12
+      KAFKA_SSL_KEYSTORE_CREDENTIALS: keystore-password
+      KAFKA_SSL_KEY_CREDENTIALS: key-password
+      KAFKA_SSL_CLIENT_AUTH: none
+
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 2
+
+      CLUSTER_ID: MkU3OEVBNTcwNTJENDM2Qk
+      KAFKA_SSL_TRUSTSTORE_TYPE: PKCS12
+      KAFKA_SSL_TRUSTSTORE_LOCATION: /etc/kafka/secrets/truststore.p12
+      KAFKA_SSL_TRUSTSTORE_PASSWORD: ${KEYSTORE_PASSWORD:?KEYSTORE_PASSWORD is required}
+      KAFKA_SASL_ENABLED_MECHANISMS: PLAIN
+      KAFKA_SASL_MECHANISM_INTER_BROKER_PROTOCOL: PLAIN
+      KAFKA_OPTS: -Djava.security.auth.login.config=/etc/kafka/secrets/broker_jaas.conf
+
+    ports:
+      - "29092:9092"
+
+    volumes:
+      - kafka2-data:/var/lib/kafka/data
+      - ./kafka-2/secrets/broker_jaas.conf:/etc/kafka/secrets/broker_jaas.conf:ro
+      - ./kafka-2/certs/kafka-2.p12:/etc/kafka/secrets/kafka-2.p12:ro
+      - ./kafka-2/secrets/keystore-password:/etc/kafka/secrets/keystore-password:ro
+      - ./kafka-2/secrets/key-password:/etc/kafka/secrets/key-password:ro
+      - ./kafka-2/certs/truststore.p12:/etc/kafka/secrets/truststore.p12:ro
+
+    networks:
+      - kafka-net
+  message-producer:
+    build:
+      context: ./producer
+    container_name: message-producer
+    environment:
+      KAFKA_BOOTSTRAP_SERVERS: kafka-1:9092,kafka-2:9092
+      KAFKA_USERNAME: ${KAFKA_USERNAME:?KAFKA_USERNAME is required}
+      KAFKA_PASSWORD: ${KAFKA_PASSWORD:?KAFKA_PASSWORD is required}
+    restart: unless-stopped
+    depends_on:
+      - kafka-1
+      - kafka-2
+    volumes:
+      - ./certs/client/ca.crt:/certs/ca.crt:ro
+    networks:
+      - kafka-net
+  
+  message-consumer:
+    build:
+      context: ./consumer
+    container_name: message-consumer
+    environment:
+      KAFKA_BOOTSTRAP_SERVERS: kafka-1:9092,kafka-2:9092
+      KAFKA_USERNAME: ${KAFKA_USERNAME:?KAFKA_USERNAME is required}
+      KAFKA_PASSWORD: ${KAFKA_PASSWORD:?KAFKA_PASSWORD is required}
+    restart: unless-stopped
+    depends_on:
+      - kafka-1
+      - kafka-2
+    volumes:
+      - ./certs/client/ca.crt:/certs/ca.crt:ro
+    networks:
+      - kafka-net
+
+
+networks:
+  kafka-net:
+    driver: bridge
+
+volumes:
+  kafka1-data:
+  kafka2-data:
