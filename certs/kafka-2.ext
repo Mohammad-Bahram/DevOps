@@ -1,3 +1,0 @@
-subjectAltName=DNS:kafka-2,DNS:localhost
-extendedKeyUsage=serverAuth
-keyUsage=digitalSignature,keyEncipherment
