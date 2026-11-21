@@ -155,7 +155,57 @@ docker compose logs -f
 
 ---
 
-## 7. Security Notes | نکات امنیتی
+## 7. Kafka Topic Viewer | مشاهده Topicها و پیام‌ها
+
+**English**
+
+The project includes an interactive CLI script that allows users to list Kafka topics and consume messages without manually running Kafka command-line tools.
+
+Make sure the Kafka cluster is running, then execute:
+
+```bash
+chmod +x scripts/kafka-cli.sh
+./scripts/kafka-cli.sh
+```
+
+The script reads the Kafka client credentials and TLS truststore password from `.env`. It creates a temporary client configuration, uses it to connect to the cluster, and removes the temporary configuration when the script exits.
+
+The CLI provides the following options:
+
+1. List available topics.
+2. Select a topic.
+3. Read all existing messages from the beginning.
+4. Read a limited number of messages.
+5. Read only new messages.
+
+Press `Ctrl+C` to stop consuming messages. Select `q` when prompted for a topic number to quit.
+
+**فارسی**
+
+پروژه دارای یک اسکریپت تعاملی CLI است که به کاربر اجازه می‌دهد بدون اجرای دستی دستورات Kafka، فهرست Topicها را مشاهده کند و پیام‌های آن‌ها را بخواند.
+
+ابتدا مطمئن شوید کلاستر Kafka در حال اجراست؛ سپس دستورات زیر را اجرا کنید:
+
+```bash
+chmod +x scripts/kafka-cli.sh
+./scripts/kafka-cli.sh
+```
+
+این اسکریپت اطلاعات احراز هویت Kafka و رمز عبور Truststore را از فایل `.env` می‌خواند. سپس یک فایل تنظیمات موقت برای اتصال به کلاستر ایجاد می‌کند و پس از پایان اجرا آن را حذف می‌کند.
+
+امکانات CLI:
+
+1. نمایش فهرست Topicهای موجود.
+2. انتخاب Topic موردنظر.
+3. خواندن تمام پیام‌های موجود از ابتدا.
+4. خواندن تعداد مشخصی از پیام‌ها.
+5. خواندن پیام‌های جدید.
+
+برای توقف خواندن پیام‌ها از `Ctrl+C` استفاده کنید. همچنین هنگام انتخاب Topic، با وارد کردن `q` می‌توانید از اسکریپت خارج شوید.
+
+---
+
+## 8. Security Notes | نکات امنیتی
 
 **English**
 
@@ -164,6 +214,7 @@ docker compose logs -f
 - Keep keystores, truststores, passwords, and JAAS files out of Git.
 - Store the CA private key securely.
 - Do not regenerate the CA while existing certificates depend on it.
+- The topic viewer creates a temporary client configuration containing credentials. It restricts the file permissions and removes the file when it exits. Avoid interrupting the host or forcibly terminating the container while the script is running.
 
 **فارسی**
 
@@ -172,3 +223,4 @@ docker compose logs -f
 - Keystore، Truststore، رمزهای عبور و فایل‌های JAAS را خارج از Git نگه دارید.
 - کلید خصوصی CA را در محل امن نگهداری کنید.
 - تا زمانی که Certificateهای موجود به CA فعلی وابسته هستند، آن را مجدداً تولید نکنید.
+- اسکریپت مشاهده Topicها یک فایل تنظیمات موقت شامل اطلاعات احراز هویت ایجاد می‌کند. دسترسی این فایل محدود است و پس از خروج اسکریپت حذف می‌شود. هنگام اجرای اسکریپت از متوقف‌کردن اجباری کانتینر یا سیستم میزبان خودداری کنید.
